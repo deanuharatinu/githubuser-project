@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="dimen_16_dp">16dp</dimen>
+    <dimen name="corner_rad_6_dp">6dp</dimen>
+    <dimen name="dimen_6_dp">6dp</dimen>
+    <dimen name="text_18_sp">18sp</dimen>
+    <dimen name="dimen_26_dp">26dp</dimen>
+    <dimen name="view_pager_height">440dp</dimen>
+</resources>
