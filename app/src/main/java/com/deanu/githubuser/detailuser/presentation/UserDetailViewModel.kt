@@ -24,6 +24,9 @@ class UserDetailViewModel @Inject constructor(
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
 
+    private val _successMessage = MutableLiveData<String>()
+    val successMessage: LiveData<String> = _successMessage
+
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -38,6 +41,21 @@ class UserDetailViewModel @Inject constructor(
                 }
             }
             _isLoading.postValue(false)
+        }
+    }
+
+    fun storeFavoriteUser() {
+        viewModelScope.launch {
+            withContext(dispatchersProvider.io()) {
+                try {
+                    userDetail.value?.let { userDetail ->
+                        userRepository.storeFavoriteUser(userDetail)
+                        _successMessage.postValue("${userDetail.name} added to favorite")
+                    }
+                } catch (exception: Exception) {
+                    _errorMessage.postValue(exception.message)
+                }
+            }
         }
     }
 }

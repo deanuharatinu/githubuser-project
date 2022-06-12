@@ -32,6 +32,7 @@ ext {
     archLifecycleVersion = "2.4.1"
     hilt_version = '2.40.1'
     androidx_hilt_version = "1.0.0-alpha03"
+    room_version = "2.4.2"
 }
 
 task clean(type: Delete) {

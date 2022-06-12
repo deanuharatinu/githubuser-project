@@ -17,6 +17,9 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_searchUserFragment_to_favoriteUserFragment"
+            app:destination="@id/favoriteUserFragment" />
     </fragment>
     <fragment
         android:id="@+id/userDetailFragment"
@@ -26,5 +29,17 @@
         <argument
             android:name="username"
             app:argType="string" />
+        <action
+            android:id="@+id/action_userDetailFragment_to_favoriteUserFragment"
+            app:destination="@id/favoriteUserFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
+    <fragment
+        android:id="@+id/favoriteUserFragment"
+        android:name="com.deanu.githubuser.favoriteuser.presentation.FavoriteUserFragment"
+        android:label="fragment_favorite_user"
+        tools:layout="@layout/fragment_favorite_user" />
 </navigation>

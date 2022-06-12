@@ -19,12 +19,8 @@ class SearchUserViewModel @Inject constructor(
     private val dispatchersProvider: DispatchersProvider
 ) : ViewModel() {
 
-    companion object {
-        const val TAG = "SearchUserViewModel"
-    }
-
     private val _userList = MutableLiveData<List<User>>()
-    val storeItemList: LiveData<List<User>> = _userList
+    val userList: LiveData<List<User>> = _userList
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -70,5 +66,9 @@ class SearchUserViewModel @Inject constructor(
 
     private fun errorSearch() {
         _errorMessage.postValue("User not found")
+    }
+
+    companion object {
+        const val TAG = "SearchUserViewModel"
     }
 }

@@ -1,13 +1,12 @@
 package com.deanu.githubuser.detailuser.presentation
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.deanu.githubuser.R
@@ -25,14 +24,6 @@ class UserDetailFragment : Fragment() {
     private val viewModel: UserDetailViewModel by viewModels()
     private val args: UserDetailFragmentArgs by navArgs()
 
-    companion object {
-        @StringRes
-        private val TAB_TITLES = intArrayOf(
-            R.string.tab_text_1,
-            R.string.tab_text_2
-        )
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,6 +31,7 @@ class UserDetailFragment : Fragment() {
         _binding = FragmentUserDetailBinding.inflate(layoutInflater)
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.user_detail_title)
+        setHasOptionsMenu(true)
 
         viewModel.getUserDetail(args.username)
 
@@ -60,14 +52,18 @@ class UserDetailFragment : Fragment() {
         }
 
         viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
-            Snackbar.make(
-                binding.root,
-                errorMessage,
-                Snackbar.LENGTH_SHORT
-            ).show()
+            showMessage(errorMessage)
         }
 
         showFollowersAndFollowing()
+
+        viewModel.successMessage.observe(viewLifecycleOwner) { successMessage ->
+            showMessage(successMessage)
+        }
+
+        binding.fabAddFavorite.setOnClickListener {
+            viewModel.storeFavoriteUser()
+        }
 
         return binding.root
     }
@@ -83,6 +79,10 @@ class UserDetailFragment : Fragment() {
         }.attach()
     }
 
+    private fun showMessage(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
     private fun loadingScreen(isLoading: Boolean) {
         if (isLoading) {
             binding.contentLayout.visibility = View.INVISIBLE
@@ -93,8 +93,32 @@ class UserDetailFragment : Fragment() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.favorite_user -> {
+                val action =
+                    UserDetailFragmentDirections.actionUserDetailFragmentToFavoriteUserFragment()
+                view?.findNavController()?.navigate(action)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+    }
+
+    companion object {
+        @StringRes
+        private val TAB_TITLES = intArrayOf(
+            R.string.tab_text_1,
+            R.string.tab_text_2
+        )
     }
 }

@@ -1,9 +1,7 @@
 package com.deanu.githubuser.searchuser.presentation
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.fragment.app.Fragment
@@ -28,10 +26,11 @@ class SearchUserFragment : Fragment() {
         _binding = FragmentSearchUserBinding.inflate(layoutInflater)
         val view = binding.root
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.search_title)
+        setHasOptionsMenu(true)
 
         setupSearchView()
 
-        viewModel.storeItemList.observe(viewLifecycleOwner) { userList ->
+        viewModel.userList.observe(viewLifecycleOwner) { userList ->
             val adapter =
                 AdapterUser(userList) { username: String -> viewModel.onCardClicked(username) }
             binding.rvSearchList.adapter = adapter
@@ -80,6 +79,22 @@ class SearchUserFragment : Fragment() {
                 return false
             }
         })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.favorite_user -> {
+                val action =
+                    SearchUserFragmentDirections.actionSearchUserFragmentToFavoriteUserFragment()
+                view?.findNavController()?.navigate(action)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onDestroy() {
