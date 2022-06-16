@@ -3,12 +3,14 @@ package com.deanu.githubuser.searchuser.presentation
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import com.deanu.githubuser.R
 import com.deanu.githubuser.databinding.FragmentSearchUserBinding
+import com.deanu.githubuser.detailuser.presentation.UserDetailFragment.Companion.SEARCH
 import com.deanu.githubuser.searchuser.usecase.AdapterUser
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +29,7 @@ class SearchUserFragment : Fragment() {
         val view = binding.root
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.search_title)
         setHasOptionsMenu(true)
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         setupSearchView()
 
@@ -47,7 +50,10 @@ class SearchUserFragment : Fragment() {
         viewModel.navigateToUserDetail.observe(viewLifecycleOwner) { userId ->
             userId?.let {
                 val action =
-                    SearchUserFragmentDirections.actionSearchUserFragmentToUserDetailFragment(it)
+                    SearchUserFragmentDirections.actionSearchUserFragmentToUserDetailFragment(
+                        it,
+                        SEARCH
+                    )
                 view.findNavController().navigate(action)
                 viewModel.onCardNavigated()
             }
@@ -91,6 +97,17 @@ class SearchUserFragment : Fragment() {
                 val action =
                     SearchUserFragmentDirections.actionSearchUserFragmentToFavoriteUserFragment()
                 view?.findNavController()?.navigate(action)
+                true
+            }
+            R.id.app_setting -> {
+                viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
+                    if (!isDarkMode) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    }
+                    viewModel.setAppTheme(!isDarkMode)
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)

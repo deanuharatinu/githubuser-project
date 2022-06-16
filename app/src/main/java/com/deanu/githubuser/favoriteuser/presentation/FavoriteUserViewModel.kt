@@ -43,9 +43,11 @@ class FavoriteUserViewModel @Inject constructor(
         }
     }
 
-    fun deleteFavoriteUser(userId: Int) {
+    fun deleteFavoriteUser(userIdToDelete: Int) {
         viewModelScope.launch {
-
+            withContext(dispatchersProvider.io()) {
+                userRepository.deleteFavoriteUser(userIdToDelete)
+            }
         }
     }
 
@@ -53,7 +55,13 @@ class FavoriteUserViewModel @Inject constructor(
         _userIdToDelete.value = userId
     }
 
+    fun onCardClicked(username: String) {
+        _navigateToUserDetail.value = username
+    }
 
+    fun onCardNavigated() {
+        _navigateToUserDetail.value = null
+    }
 
     companion object {
         const val TAG = "FavoriteUserViewModel"

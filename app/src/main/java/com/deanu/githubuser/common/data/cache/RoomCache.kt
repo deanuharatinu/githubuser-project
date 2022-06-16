@@ -12,6 +12,10 @@ class RoomCache @Inject constructor(private val gitHubUserDao: GitHubUserDao) : 
     override suspend fun getFavoriteUsers(): List<CachedGitHubUser> =
         gitHubUserDao.getFavoriteUserList()
 
+    override suspend fun getFavoriteUserDetail(username: String): CachedGitHubUser {
+        return gitHubUserDao.getFavoriteUserDetail(username)
+    }
+
     override suspend fun deleteFavoriteUser(userId: Int) {
         gitHubUserDao.deleteFavoriteUser(userId)
     }

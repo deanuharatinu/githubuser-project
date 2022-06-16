@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import com.deanu.githubuser.R
 import com.deanu.githubuser.databinding.FragmentFavoriteUserBinding
+import com.deanu.githubuser.detailuser.presentation.UserDetailFragment.Companion.FAVORITE
 import com.deanu.githubuser.favoriteuser.usecase.AdapterFavoriteUser
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,12 +29,16 @@ class FavoriteUserFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.favorite_user_title)
         setHasOptionsMenu(true)
-        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
+        val view = binding.root
+
+        val adapter =
+            AdapterFavoriteUser({ userId: Int -> viewModel.onUserDelete(userId) },
+                { username: String -> viewModel.onCardClicked(username) })
+        binding.rvFavoriteUser.adapter = adapter
 
         viewModel.getFavoriteUsers()
-        val adapter =
-            AdapterFavoriteUser { userId: Int -> viewModel.onUserDelete(userId) }
-        binding.rvFavoriteUser.adapter = adapter
 
         viewModel.userList.observe(viewLifecycleOwner) { favoriteUserList ->
             favoriteUserList?.let { adapter.submitList(favoriteUserList) }
@@ -47,17 +53,25 @@ class FavoriteUserFragment : Fragment() {
         }
 
         viewModel.userIdToDelete.observe(viewLifecycleOwner) { userIdToDelete ->
-            // TODO: delete user dari favorite list
-//            viewModel.
+            viewModel.deleteFavoriteUser(userIdToDelete)
+            viewModel.getFavoriteUsers()
         }
 
-        return binding.root
+        viewModel.navigateToUserDetail.observe(viewLifecycleOwner) { username ->
+            username?.let {
+                val action =
+                    FavoriteUserFragmentDirections.actionFavoriteUserFragmentToUserDetailFragment(it, FAVORITE)
+                view.findNavController().navigate(action)
+                viewModel.onCardNavigated()
+            }
+        }
+
+        return view
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-
             else -> super.onOptionsItemSelected(item)
         }
     }

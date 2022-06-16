@@ -7,5 +7,7 @@ interface Cache {
 
     suspend fun getFavoriteUsers(): List<CachedGitHubUser>
 
+    suspend fun getFavoriteUserDetail(username: String): CachedGitHubUser
+
     suspend fun deleteFavoriteUser(userId: Int)
 }

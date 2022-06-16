@@ -10,6 +10,8 @@ interface UserRepository {
 
     suspend fun getUserDetail(username: String): UserDetail
 
+    suspend fun getFavoriteUserDetail(username: String): UserDetail
+
     suspend fun getUserFollowers(username: String): List<User>
 
     suspend fun getUserFollowing(username: String): List<User>

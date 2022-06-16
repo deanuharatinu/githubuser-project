@@ -14,6 +14,9 @@ interface GitHubUserDao {
     @Query("SELECT * FROM favorited_user")
     fun getFavoriteUserList(): List<CachedGitHubUser>
 
+    @Query("SELECT * FROM favorited_user WHERE username = :username")
+    fun getFavoriteUserDetail(username: String): CachedGitHubUser
+
     @Query("DELETE FROM favorited_user WHERE id = :userId")
     fun deleteFavoriteUser(userId: Int)
 }

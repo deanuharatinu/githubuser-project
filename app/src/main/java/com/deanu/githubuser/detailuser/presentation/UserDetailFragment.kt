@@ -31,9 +31,17 @@ class UserDetailFragment : Fragment() {
         _binding = FragmentUserDetailBinding.inflate(layoutInflater)
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.user_detail_title)
-        setHasOptionsMenu(true)
+        if (args.detailType == SEARCH) {
+            setHasOptionsMenu(true)
+            binding.fabAddFavorite.visibility = View.VISIBLE
+        } else {
+            setHasOptionsMenu(false)
+            binding.fabAddFavorite.visibility = View.GONE
+        }
 
-        viewModel.getUserDetail(args.username)
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
+        viewModel.getUserDetail(args.username, args.detailType)
 
         viewModel.userDetail.observe(viewLifecycleOwner) { userDetail ->
             Glide.with(this)
@@ -120,5 +128,8 @@ class UserDetailFragment : Fragment() {
             R.string.tab_text_1,
             R.string.tab_text_2
         )
+
+        const val SEARCH = "search"
+        const val FAVORITE = "favorite"
     }
 }

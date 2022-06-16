@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.deanu.githubuser.common.domain.model.UserDetail
 import com.deanu.githubuser.common.domain.repository.UserRepository
 import com.deanu.githubuser.common.utils.DispatchersProvider
+import com.deanu.githubuser.detailuser.presentation.UserDetailFragment.Companion.SEARCH
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,17 +31,31 @@ class UserDetailViewModel @Inject constructor(
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    fun getUserDetail(username: String) {
+    fun getUserDetail(username: String, detailType: String) {
         _isLoading.value = true
-        viewModelScope.launch {
-            withContext(dispatchersProvider.io()) {
-                try {
-                    _userDetail.postValue(userRepository.getUserDetail(username))
-                } catch (exception: Exception) {
-                    _errorMessage.postValue(exception.message)
+
+        if (detailType == SEARCH) {
+            viewModelScope.launch {
+                withContext(dispatchersProvider.io()) {
+                    try {
+                        _userDetail.postValue(userRepository.getUserDetail(username))
+                    } catch (exception: Exception) {
+                        _errorMessage.postValue(exception.message)
+                    }
                 }
+                _isLoading.postValue(false)
             }
-            _isLoading.postValue(false)
+        } else {
+            viewModelScope.launch {
+                withContext(dispatchersProvider.io()) {
+                    try {
+                        _userDetail.postValue(userRepository.getFavoriteUserDetail(username))
+                    } catch (exception: Exception) {
+                        _errorMessage.postValue(exception.message)
+                    }
+                }
+                _isLoading.postValue(false)
+            }
         }
     }
 

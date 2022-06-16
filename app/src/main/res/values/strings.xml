@@ -17,4 +17,5 @@
     <string name="favorite_user">Favorite User</string>
     <string name="delete_user">Delete user</string>
     <string name="favorite_user_title">Favorite User</string>
+    <string name="app_setting">App Setting</string>
 </resources>
