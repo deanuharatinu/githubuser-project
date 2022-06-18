@@ -32,6 +32,7 @@ class SearchUserFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         setupSearchView()
+        setupAppTheme()
 
         viewModel.userList.observe(viewLifecycleOwner) { userList ->
             val adapter =
@@ -91,6 +92,16 @@ class SearchUserFragment : Fragment() {
                 return false
             }
         })
+    }
+
+    private fun setupAppTheme() {
+        viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
+            if (isDarkMode) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
