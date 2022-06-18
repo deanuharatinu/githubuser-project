@@ -1,9 +1,11 @@
 package com.deanu.githubuser.detailuser.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -31,13 +33,10 @@ class UserDetailFragment : Fragment() {
         _binding = FragmentUserDetailBinding.inflate(layoutInflater)
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.user_detail_title)
-        if (args.detailType == SEARCH) {
-            setHasOptionsMenu(true)
-            binding.fabAddFavorite.visibility = View.VISIBLE
-        } else {
-            setHasOptionsMenu(false)
-            binding.fabAddFavorite.visibility = View.GONE
-        }
+        setHasOptionsMenu(true)
+
+        if (args.detailType == SEARCH) binding.fabAddFavorite.visibility = View.VISIBLE
+        else binding.fabAddFavorite.visibility = View.GONE
 
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
@@ -102,7 +101,8 @@ class UserDetailFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu, menu)
+        if (args.detailType == SEARCH) inflater.inflate(R.menu.menu, menu)
+        else inflater.inflate(R.menu.menu_user_detail, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -113,8 +113,36 @@ class UserDetailFragment : Fragment() {
                 view?.findNavController()?.navigate(action)
                 true
             }
+            R.id.app_setting -> {
+                viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
+                    if (!isDarkMode) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    }
+                    viewModel.setAppTheme(!isDarkMode)
+                }
+                true
+            }
+            R.id.share_detail -> {
+                shareDetail()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun shareDetail() {
+        val gitHubUrl = viewModel.getGitHubUrl()
+
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, gitHubUrl)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
     }
 
     override fun onDestroy() {

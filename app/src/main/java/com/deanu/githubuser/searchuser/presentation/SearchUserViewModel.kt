@@ -9,6 +9,7 @@ import com.deanu.githubuser.common.domain.model.User
 import com.deanu.githubuser.common.domain.repository.AppSettingRepository
 import com.deanu.githubuser.common.domain.repository.UserRepository
 import com.deanu.githubuser.common.utils.DispatchersProvider
+import com.deanu.githubuser.common.utils.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,8 +28,8 @@ class SearchUserViewModel @Inject constructor(
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String> = _errorMessage
+    private val _errorMessage = MutableLiveData<Event<String>>()
+    val errorMessage: LiveData<Event<String>> = _errorMessage
 
     private val _navigateToUserDetail = MutableLiveData<String?>()
     val navigateToUserDetail: LiveData<String?> = _navigateToUserDetail
@@ -47,11 +48,15 @@ class SearchUserViewModel @Inject constructor(
                     }
                 } catch (exception: Exception) {
                     Log.e(TAG, "searchUser: ${exception.message}")
-                    _errorMessage.postValue(exception.message)
+                    _errorMessage.postValue(Event(exception.message.toString()))
                 }
             }
             _isLoading.value = false
         }
+    }
+
+    fun clearUserList() {
+        _userList.value = emptyList()
     }
 
     fun onCardClicked(username: String) {
@@ -67,10 +72,10 @@ class SearchUserViewModel @Inject constructor(
     }
 
     private fun errorSearch() {
-        _errorMessage.postValue("User not found")
+        _errorMessage.postValue(Event("User not found"))
     }
 
-    var isDarkMode: LiveData<Boolean> = appSettingRepository.getAppMode()
+    val isDarkMode: LiveData<Boolean> = appSettingRepository.getAppMode()
 
     fun setAppTheme(isDarkMode: Boolean) {
         viewModelScope.launch {

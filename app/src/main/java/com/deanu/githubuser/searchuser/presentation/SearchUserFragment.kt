@@ -56,15 +56,18 @@ class SearchUserFragment : Fragment() {
                     )
                 view.findNavController().navigate(action)
                 viewModel.onCardNavigated()
+                viewModel.clearUserList()
             }
         }
 
         viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
-            Snackbar.make(
-                view,
-                errorMessage,
-                Snackbar.LENGTH_SHORT
-            ).show()
+            errorMessage.getContentIfNotHandled()?.let { message ->
+                Snackbar.make(
+                    view,
+                    message,
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
         }
 
         return view
@@ -80,8 +83,11 @@ class SearchUserFragment : Fragment() {
                 return true
             }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                // Nothing
+            override fun onQueryTextChange(query: String?): Boolean {
+                if (query?.isEmpty() == true) {
+                    binding.searchView.clearFocus()
+                    viewModel.clearUserList()
+                }
                 return false
             }
         })

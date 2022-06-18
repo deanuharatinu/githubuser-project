@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deanu.githubuser.common.domain.model.UserDetail
+import com.deanu.githubuser.common.domain.repository.AppSettingRepository
 import com.deanu.githubuser.common.domain.repository.UserRepository
 import com.deanu.githubuser.common.utils.DispatchersProvider
 import com.deanu.githubuser.detailuser.presentation.UserDetailFragment.Companion.SEARCH
@@ -16,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UserDetailViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val appSettingRepository: AppSettingRepository,
     private val dispatchersProvider: DispatchersProvider
 ) : ViewModel() {
 
@@ -72,5 +74,17 @@ class UserDetailViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    val isDarkMode: LiveData<Boolean> = appSettingRepository.getAppMode()
+
+    fun setAppTheme(isDarkMode: Boolean) {
+        viewModelScope.launch {
+            appSettingRepository.setAppMode(isDarkMode)
+        }
+    }
+
+    fun getGitHubUrl(): String? {
+        return userDetail.value?.githubUrl
     }
 }

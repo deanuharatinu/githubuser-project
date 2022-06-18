@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deanu.githubuser.common.domain.model.UserDetail
+import com.deanu.githubuser.common.domain.repository.AppSettingRepository
 import com.deanu.githubuser.common.domain.repository.UserRepository
 import com.deanu.githubuser.common.utils.DispatchersProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FavoriteUserViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val appSettingRepository: AppSettingRepository,
     private val dispatchersProvider: DispatchersProvider
 ) : ViewModel() {
 
@@ -61,6 +63,14 @@ class FavoriteUserViewModel @Inject constructor(
 
     fun onCardNavigated() {
         _navigateToUserDetail.value = null
+    }
+
+    val isDarkMode: LiveData<Boolean> = appSettingRepository.getAppMode()
+
+    fun setAppTheme(isDarkMode: Boolean) {
+        viewModelScope.launch {
+            appSettingRepository.setAppMode(isDarkMode)
+        }
     }
 
     companion object {

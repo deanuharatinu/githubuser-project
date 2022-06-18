@@ -6,10 +6,13 @@ buildscript {
     ext.gradle_version = "7.1.3"
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath 'com.android.tools.build:gradle:4.1.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.google.dagger:hilt-android-gradle-plugin:2.40.1"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
+    }
+    repositories {
+        google()
     }
 }
 
@@ -22,8 +25,8 @@ plugins {
 ext {
     // SDK and tools
     minSdkVersion = 21
-    targetSdkVersion = 32
-    compileSdkVersion = 32
+    targetSdkVersion = 31
+    compileSdkVersion = 31
 
     // Version
     archLifecycleVersion = "2.4.1"
@@ -31,6 +34,7 @@ ext {
     androidx_hilt_version = "1.0.0-alpha03"
     room_version = "2.4.2"
     splashscreen_version = "1.0.0-beta02"
+    androidx_core_testing_version = "2.1.0"
 }
 
 task clean(type: Delete) {

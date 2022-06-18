@@ -1,11 +1,9 @@
 package com.deanu.githubuser.favoriteuser.presentation
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
@@ -60,7 +58,10 @@ class FavoriteUserFragment : Fragment() {
         viewModel.navigateToUserDetail.observe(viewLifecycleOwner) { username ->
             username?.let {
                 val action =
-                    FavoriteUserFragmentDirections.actionFavoriteUserFragmentToUserDetailFragment(it, FAVORITE)
+                    FavoriteUserFragmentDirections.actionFavoriteUserFragmentToUserDetailFragment(
+                        it,
+                        FAVORITE
+                    )
                 view.findNavController().navigate(action)
                 viewModel.onCardNavigated()
             }
@@ -69,9 +70,23 @@ class FavoriteUserFragment : Fragment() {
         return view
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_user_detail, menu)
+    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.app_setting -> {
+                viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
+                    if (!isDarkMode) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    }
+                    viewModel.setAppTheme(!isDarkMode)
+                }
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
