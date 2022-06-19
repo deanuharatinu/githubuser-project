@@ -47,8 +47,8 @@ class UserDetailFragment : Fragment() {
                 .load(userDetail.avatarUrl)
                 .circleCrop()
                 .into(binding.ivAvatar)
-            binding.tvUsername.text = userDetail.username
-            binding.tvFullName.text = getString(R.string.username, userDetail.name)
+            binding.tvUsername.text = getString(R.string.username, userDetail.username)
+            binding.tvFullName.text = userDetail.name.ifEmpty { "-" }
             binding.tvGitUrl.text = userDetail.githubUrl
             binding.tvFollowers.text = getString(R.string.followers_numbers, userDetail.followers)
             binding.tvFollowing.text = getString(R.string.following_numbers, userDetail.following)

@@ -20,7 +20,7 @@ data class CachedGitHubUser(
             return CachedGitHubUser(
                 id = userDetail.id,
                 username = userDetail.username,
-                name = userDetail.username,
+                name = userDetail.name,
                 avatarUrl = userDetail.avatarUrl,
                 githubUrl = userDetail.githubUrl,
                 followers = userDetail.followers,

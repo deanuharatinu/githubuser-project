@@ -72,6 +72,7 @@ class FavoriteUserFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_user_detail, menu)
+        menu.removeItem(R.id.share_detail)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
