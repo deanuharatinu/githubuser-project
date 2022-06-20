@@ -15,6 +15,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.deanu.githubuser.R
+import com.deanu.githubuser.common.utils.NetworkUtils
 import com.deanu.githubuser.databinding.FragmentUserDetailBinding
 import com.deanu.githubuser.detailuser.usecase.SectionsPagerAdapter
 import com.google.android.material.snackbar.Snackbar
@@ -47,7 +48,7 @@ class UserDetailFragment : Fragment() {
 
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
-        viewModel.getUserDetail(args.username, args.detailType)
+        getUserDetail()
 
         viewModel.userDetail.observe(viewLifecycleOwner) { userDetail ->
             binding.apply {
@@ -170,6 +171,16 @@ class UserDetailFragment : Fragment() {
             },
             viewLifecycleOwner, Lifecycle.State.RESUMED
         )
+    }
+
+    private fun getUserDetail() {
+        val networkUtils = NetworkUtils()
+        val connectionStatus = networkUtils.getConnectionType(binding.root.context)
+        if (connectionStatus != 0) {
+            viewModel.getUserDetail(args.username, args.detailType)
+        } else {
+            networkUtils.showNetworkDialog(binding.root.context)
+        }
     }
 
     override fun onDestroy() {

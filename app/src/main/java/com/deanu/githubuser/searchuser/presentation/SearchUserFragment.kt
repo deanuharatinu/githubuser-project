@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import com.deanu.githubuser.R
+import com.deanu.githubuser.common.utils.NetworkUtils
 import com.deanu.githubuser.databinding.FragmentSearchUserBinding
 import com.deanu.githubuser.detailuser.presentation.UserDetailFragment.Companion.SEARCH
 import com.deanu.githubuser.searchuser.usecase.AdapterUser
@@ -23,6 +24,7 @@ class SearchUserFragment : Fragment() {
     private var _binding: FragmentSearchUserBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SearchUserViewModel by viewModels()
+    private val networkUtils: NetworkUtils = NetworkUtils()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,9 +84,14 @@ class SearchUserFragment : Fragment() {
     private fun setupSearchView() {
         binding.searchView.setOnQueryTextListener(object : OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let {
-                    viewModel.searchUser(it)
-                } ?: return false
+                val connectionStatus = networkUtils.getConnectionType(binding.root.context)
+                if (connectionStatus != 0) {
+                    query?.let {
+                        viewModel.searchUser(it)
+                    } ?: return false
+                } else {
+                    networkUtils.showNetworkDialog(binding.root.context)
+                }
                 binding.searchView.clearFocus()
                 return true
             }
@@ -110,7 +117,6 @@ class SearchUserFragment : Fragment() {
 
     private fun initMenu() {
         val menuHost: MenuHost = requireActivity()
-
         menuHost.addMenuProvider(
             object : MenuProvider {
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {

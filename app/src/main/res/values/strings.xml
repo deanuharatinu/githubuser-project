@@ -20,4 +20,8 @@
     <string name="app_setting">App Setting</string>
     <string name="share_user">Share User</string>
     <string name="delete_favorite_user">Delete Favorite User</string>
+    <string name="no_internet">No internet</string>
+    <string name="turn_on_internet">Please turn on your internet</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
 </resources>
