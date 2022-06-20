@@ -6,8 +6,11 @@ import android.view.*
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -31,27 +34,34 @@ class UserDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentUserDetailBinding.inflate(layoutInflater)
+        val view = binding.root
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.user_detail_title)
-        setHasOptionsMenu(true)
+        initMenu()
 
-        if (args.detailType == SEARCH) binding.fabAddFavorite.visibility = View.VISIBLE
-        else binding.fabAddFavorite.visibility = View.GONE
+        if (args.detailType == SEARCH) {
+            binding.fabAddFavorite.visibility = View.VISIBLE
+        } else {
+            binding.fabAddFavorite.visibility = View.GONE
+        }
 
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         viewModel.getUserDetail(args.username, args.detailType)
 
         viewModel.userDetail.observe(viewLifecycleOwner) { userDetail ->
-            Glide.with(this)
-                .load(userDetail.avatarUrl)
-                .circleCrop()
-                .into(binding.ivAvatar)
-            binding.tvUsername.text = getString(R.string.username, userDetail.username)
-            binding.tvFullName.text = userDetail.name.ifEmpty { "-" }
-            binding.tvGitUrl.text = userDetail.githubUrl
-            binding.tvFollowers.text = getString(R.string.followers_numbers, userDetail.followers)
-            binding.tvFollowing.text = getString(R.string.following_numbers, userDetail.following)
+            binding.apply {
+                Glide.with(this@UserDetailFragment)
+                    .load(userDetail.avatarUrl)
+                    .circleCrop()
+                    .into(ivAvatar)
+
+                tvUsername.text = getString(R.string.username, userDetail.username)
+                tvFullName.text = userDetail.name.ifEmpty { "-" }
+                tvGitUrl.text = userDetail.githubUrl
+                tvFollowers.text = getString(R.string.followers_numbers, userDetail.followers)
+                tvFollowing.text = getString(R.string.following_numbers, userDetail.following)
+            }
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -72,7 +82,7 @@ class UserDetailFragment : Fragment() {
             viewModel.storeFavoriteUser()
         }
 
-        return binding.root
+        return view
     }
 
     private fun showFollowersAndFollowing() {
@@ -100,38 +110,6 @@ class UserDetailFragment : Fragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        if (args.detailType == SEARCH) inflater.inflate(R.menu.menu, menu)
-        else inflater.inflate(R.menu.menu_user_detail, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.favorite_user -> {
-                val action =
-                    UserDetailFragmentDirections.actionUserDetailFragmentToFavoriteUserFragment()
-                view?.findNavController()?.navigate(action)
-                true
-            }
-            R.id.app_setting -> {
-                viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
-                    if (!isDarkMode) {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    } else {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    }
-                    viewModel.setAppTheme(!isDarkMode)
-                }
-                true
-            }
-            R.id.share_detail -> {
-                shareDetail()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
     private fun shareDetail() {
         val gitHubUrl = viewModel.getGitHubUrl()
 
@@ -143,6 +121,55 @@ class UserDetailFragment : Fragment() {
 
         val shareIntent = Intent.createChooser(sendIntent, null)
         startActivity(shareIntent)
+    }
+
+    private fun initMenu() {
+        val menuHost: MenuHost = requireActivity()
+
+        menuHost.addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    if (args.detailType == SEARCH) {
+                        menuInflater.inflate(R.menu.menu, menu)
+                    } else {
+                        menuInflater.inflate(R.menu.menu_user_detail, menu)
+                    }
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.favorite_user -> {
+                            val action =
+                                UserDetailFragmentDirections.actionUserDetailFragmentToFavoriteUserFragment()
+                            view?.findNavController()?.navigate(action)
+                            true
+                        }
+                        R.id.app_setting -> {
+                            viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
+                                if (!isDarkMode) {
+                                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                                } else {
+                                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                                }
+                                viewModel.setAppTheme(!isDarkMode)
+                            }
+                            true
+                        }
+                        R.id.share_detail -> {
+                            shareDetail()
+                            true
+                        }
+                        R.id.delete_user -> {
+                            viewModel.userDetail.value?.let { viewModel.deleteFavoriteUser(it.id) }
+                            view?.findNavController()?.navigateUp()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+            },
+            viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
     }
 
     override fun onDestroy() {

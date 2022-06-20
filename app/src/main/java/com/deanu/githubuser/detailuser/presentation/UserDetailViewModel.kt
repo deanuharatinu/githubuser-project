@@ -87,4 +87,12 @@ class UserDetailViewModel @Inject constructor(
     fun getGitHubUrl(): String? {
         return userDetail.value?.githubUrl
     }
+
+    fun deleteFavoriteUser(userIdToDelete: Int) {
+        viewModelScope.launch {
+            withContext(dispatchersProvider.io()) {
+                userRepository.deleteFavoriteUser(userIdToDelete)
+            }
+        }
+    }
 }
