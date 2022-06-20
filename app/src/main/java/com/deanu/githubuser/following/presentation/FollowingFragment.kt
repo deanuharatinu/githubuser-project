@@ -7,20 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.deanu.githubuser.databinding.FragmentFollowingBinding
+import com.deanu.githubuser.databinding.FragmentFollowersFollowingBinding
 import com.deanu.githubuser.following.usecase.AdapterFollowingList
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class FollowingFragment : Fragment() {
-    private var _binding: FragmentFollowingBinding? = null
+    private var _binding: FragmentFollowersFollowingBinding? = null
     private val binding get() = _binding!!
     private val viewModel: FollowingViewModel by viewModels()
-
-    companion object {
-        const val TAG = "FollowingFragment"
-        const val USERNAME_KEY = "username"
-    }
 
     fun newInstance(bundle: Bundle): FollowingFragment {
         val fragment = FollowingFragment()
@@ -32,7 +27,7 @@ class FollowingFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFollowingBinding.inflate(layoutInflater)
+        _binding = FragmentFollowersFollowingBinding.inflate(layoutInflater)
 
         if (arguments != null) {
             requireArguments().getString(USERNAME_KEY)?.let { username ->
@@ -41,7 +36,7 @@ class FollowingFragment : Fragment() {
         }
 
         viewModel.followingList.observe(viewLifecycleOwner) { followingList ->
-            binding.rvFollowingList.adapter = AdapterFollowingList(followingList)
+            binding.rvList.adapter = AdapterFollowingList(followingList)
         }
 
         viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
@@ -54,5 +49,10 @@ class FollowingFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+    }
+
+    companion object {
+        const val TAG = "FollowingFragment"
+        const val USERNAME_KEY = "username"
     }
 }

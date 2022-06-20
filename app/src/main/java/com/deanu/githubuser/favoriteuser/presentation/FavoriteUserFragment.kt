@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import com.deanu.githubuser.R
 import com.deanu.githubuser.databinding.FragmentFavoriteUserBinding
@@ -26,7 +29,6 @@ class FavoriteUserFragment : Fragment() {
         _binding = FragmentFavoriteUserBinding.inflate(layoutInflater)
         (activity as AppCompatActivity).supportActionBar?.title =
             getString(R.string.favorite_user_title)
-        setHasOptionsMenu(true)
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         val view = binding.root
@@ -43,10 +45,10 @@ class FavoriteUserFragment : Fragment() {
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                binding.progressCircular.visibility = View.VISIBLE
+            binding.progressCircular.visibility = if (isLoading) {
+                View.VISIBLE
             } else {
-                binding.progressCircular.visibility = View.GONE
+                View.GONE
             }
         }
 
@@ -70,26 +72,38 @@ class FavoriteUserFragment : Fragment() {
         return view
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_user_detail, menu)
-        menu.removeItem(R.id.share_detail)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        initMenu()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.app_setting -> {
-                viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
-                    if (!isDarkMode) {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    } else {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    }
-                    viewModel.setAppTheme(!isDarkMode)
+    private fun initMenu() {
+        val menuHost: MenuHost = requireActivity()
+
+        menuHost.addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.menu_user_detail, menu)
+                    menu.removeItem(R.id.share_detail)
                 }
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.app_setting -> {
+                            viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
+                                if (!isDarkMode) {
+                                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                                } else {
+                                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                                }
+                                viewModel.setAppTheme(!isDarkMode)
+                            }
+                            true
+                        }
+                        else -> false
+                    }
+                }
+            }, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
     }
 
     override fun onDestroy() {

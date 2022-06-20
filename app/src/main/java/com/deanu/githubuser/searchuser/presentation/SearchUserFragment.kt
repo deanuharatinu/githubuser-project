@@ -5,8 +5,11 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView.OnQueryTextListener
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.findNavController
 import com.deanu.githubuser.R
 import com.deanu.githubuser.databinding.FragmentSearchUserBinding
@@ -28,7 +31,6 @@ class SearchUserFragment : Fragment() {
         _binding = FragmentSearchUserBinding.inflate(layoutInflater)
         val view = binding.root
         (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.search_title)
-        setHasOptionsMenu(true)
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         setupSearchView()
@@ -41,10 +43,10 @@ class SearchUserFragment : Fragment() {
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                binding.progressCircular.visibility = View.VISIBLE
+            binding.progressCircular.visibility = if (isLoading) {
+                View.VISIBLE
             } else {
-                binding.progressCircular.visibility = View.GONE
+                View.GONE
             }
         }
 
@@ -57,7 +59,6 @@ class SearchUserFragment : Fragment() {
                     )
                 view.findNavController().navigate(action)
                 viewModel.onCardNavigated()
-                viewModel.clearUserList()
             }
         }
 
@@ -74,6 +75,10 @@ class SearchUserFragment : Fragment() {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        initMenu()
+    }
+
     private fun setupSearchView() {
         binding.searchView.setOnQueryTextListener(object : OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -87,7 +92,6 @@ class SearchUserFragment : Fragment() {
             override fun onQueryTextChange(query: String?): Boolean {
                 if (query?.isEmpty() == true) {
                     binding.searchView.clearFocus()
-                    viewModel.clearUserList()
                 }
                 return false
             }
@@ -104,31 +108,39 @@ class SearchUserFragment : Fragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu, menu)
-    }
+    private fun initMenu() {
+        val menuHost: MenuHost = requireActivity()
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.favorite_user -> {
-                val action =
-                    SearchUserFragmentDirections.actionSearchUserFragmentToFavoriteUserFragment()
-                view?.findNavController()?.navigate(action)
-                true
-            }
-            R.id.app_setting -> {
-                viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
-                    if (!isDarkMode) {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    } else {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    }
-                    viewModel.setAppTheme(!isDarkMode)
+        menuHost.addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.menu, menu)
                 }
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.favorite_user -> {
+                            val action =
+                                SearchUserFragmentDirections.actionSearchUserFragmentToFavoriteUserFragment()
+                            view?.findNavController()?.navigate(action)
+                            true
+                        }
+                        R.id.app_setting -> {
+                            viewModel.isDarkMode.observe(viewLifecycleOwner) { isDarkMode ->
+                                if (!isDarkMode) {
+                                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                                } else {
+                                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                                }
+                                viewModel.setAppTheme(!isDarkMode)
+                            }
+                            true
+                        }
+                        else -> true
+                    }
+                }
+            }, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
     }
 
     override fun onDestroy() {

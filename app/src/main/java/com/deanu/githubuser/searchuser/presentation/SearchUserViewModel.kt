@@ -55,10 +55,6 @@ class SearchUserViewModel @Inject constructor(
         }
     }
 
-    fun clearUserList() {
-        _userList.value = emptyList()
-    }
-
     fun onCardClicked(username: String) {
         _navigateToUserDetail.value = username
     }

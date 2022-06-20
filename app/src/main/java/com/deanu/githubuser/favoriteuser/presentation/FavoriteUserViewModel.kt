@@ -26,9 +26,6 @@ class FavoriteUserViewModel @Inject constructor(
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String> = _errorMessage
-
     private val _userIdToDelete = MutableLiveData<Int>()
     val userIdToDelete: LiveData<Int> = _userIdToDelete
 
@@ -71,9 +68,5 @@ class FavoriteUserViewModel @Inject constructor(
         viewModelScope.launch {
             appSettingRepository.setAppMode(isDarkMode)
         }
-    }
-
-    companion object {
-        const val TAG = "FavoriteUserViewModel"
     }
 }
